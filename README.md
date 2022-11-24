@@ -23,4 +23,4 @@ ionic start example blank
 ````shellsession
 docker run -p 8080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:20.0.1 start-dev
 ````
-> This will start Keycloak exposed on the local port 8080. It will also create an initial admin user with username admin and password admin.
+This will start Keycloak exposed on the local port `8080`. It will also create an initial admin user with username `admin` and password `admin`.
