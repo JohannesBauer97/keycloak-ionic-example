@@ -86,3 +86,12 @@ This example uses the default `master` realm and `admin` user.
   }
 }
 ```
+## Install angular-oauth2-oidc library
+* NPMJS: https://www.npmjs.com/package/angular-oauth2-oidc
+* Sources and Sample: https://github.com/manfredsteyer/angular-oauth2-oidc
+* Source Code Documentation: https://manfredsteyer.github.io/angular-oauth2-oidc/docs
+* Community-provided sample implementation: https://github.com/jeroenheijmans/sample-angular-oauth2-oidc-with-auth-guards/
+
+```shellsession
+npm i angular-oauth2-oidc --save
+```
