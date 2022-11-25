@@ -34,6 +34,9 @@ Follow these instructions careful or import the json file at the end to have the
 2. Add `http://localhost:8100` to Valid redirect URIs, Valid post logout redirect URIs and Web origins
 3. Add the predefined token mapper "realm roles" to the client. Navigate to clients -> open example-ionic-app -> open tab client scopes -> open example-ionic-app-dedicated -> add predefined mapper -> search & add "realm roles" mapper -> open realm roles mapper -> edit token claim name from "realm_access.roles" to "realm_roles" -> save
 
+__Why do we need the token mapper?__
+When you get a JWT access/id token from Keycloak with the default settings, and inspect the token with [jwt.io](https://jwt.io/) you'll see that realm roles are actually already part of the token. But every provider (Keycloak, IdentityServer, Auth0,...) might use a different naming for the fields where the roles are listed. This cannot be handled by a generic OAuth library. But we can configure Keycloak to add the list of realm roles to any token claim we want. And this is what we've done. After adding the token mapper, a new claim "realm_roles" is added which contains a list of the assigned user roles. If you're working with client roles, you can add the predefined mapper "client roles". Make sure that you use no dots in the token claim name, this cannot be handled by the generic OAuth library.
+
 *Exported example-ionic-app client*
 ```json
 {
