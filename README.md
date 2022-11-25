@@ -164,6 +164,7 @@ Most of the configuration is self explaining, you can find the URLs for your Key
 ## Setup the app start
 When a user enters the app, we want to check if there is a valid access token or if the user needs to log in.
 
+*app.component.ts*
 ```typescript
 export class AppComponent implements OnInit{
   public hasValidAccessToken = false;
@@ -211,6 +212,8 @@ export class AppComponent implements OnInit{
 ````
 ## Login
 Here we can use the library methods.
+
+*app.component.ts*
 ```typescript
   /**
    * Calls the library loadDiscoveryDocumentAndLogin() method.
@@ -228,6 +231,8 @@ Here we can use the library methods.
 
 ## Logout
 Here we can use the library methods.
+
+*app.component.ts*
 ```typescript
   /**
    * Calls the library revokeTokenAndLogout() method.
@@ -245,6 +250,8 @@ Here we can use the library methods.
 
 ## Load Userprofile
 Here we can use the library methods.
+
+*app.component.ts*
 ```typescript
   /**
    * Calls the library loadUserProfile() method and sets the result in this.userProfile.
@@ -263,6 +270,8 @@ Here we can use the library methods.
 ## Get Realm Roles
 In the earlier chapters we configured the client in Keycloak that the realm roles are added as claims to the tokens.
 This method shows how to access them now.
+
+*app.component.ts*
 ```typescript
   /**
    *  Use this method only when an id token is available.
