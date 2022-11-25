@@ -126,6 +126,7 @@ npm i angular-oauth2-oidc --save
 You can see in the example code, that there is no home module. To keep the example simple and small, everything is implemented in the app module/component.
 
 ## Add Capacitor for iOS
+[Official Documentation](https://ionicframework.com/docs/developing/ios)
 ```shellsession
 ionic capacitor add ios
 ```
