@@ -169,7 +169,9 @@ Most of the configuration is self explaining, you can find the URLs for your Key
 ```
 ## Use and configure OAuthService (iOS)
 1. xcode url schema setup https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app / or universal links https://capacitorjs.com/docs/guides/deep-links
-2. listen to url changes in angular and provide to auth lib
+2. listen to url changes in angular
+3. parse url and add to query params angular router 
+4. try login
 
 ## Setup the app start
 When a user enters the app, we want to check if there is a valid access token or if the user needs to log in.
