@@ -27,9 +27,12 @@ This will start Keycloak exposed on the local port `8080`. It will also create a
 
 ## Keycloak configuration
 This example uses the default `master` realm and `admin` user.
+Follow these instructions careful or import the json file at the end to have the same settings.
 
 ### Create the example client
-1. Create the client `example-ionic-app` on `master` realm
+1. Create the client with id `example-ionic-app` on `master` realm (default settings in Keycloak 20)
+2. Add `http://localhost:8100` to Valid redirect URIs, Valid post logout redirect URIs and Web origins
+3. Add the predefined token mapper "realm roles" to the client. Navigate to clients -> open example-ionic-app -> open tab client scopes -> open example-ionic-app-dedicated -> add predefined mapper -> search & add "realm roles" mapper -> open realm roles mapper -> edit token claim name from "realm_access.roles" to "realm_roles" -> save
 
 *Exported example-ionic-app client*
 ```json
@@ -44,8 +47,12 @@ This example uses the default `master` realm and `admin` user.
   "enabled": true,
   "alwaysDisplayInConsole": false,
   "clientAuthenticatorType": "client-secret",
-  "redirectUris": [],
-  "webOrigins": [],
+  "redirectUris": [
+    "http://localhost:8100"
+  ],
+  "webOrigins": [
+    "http://localhost:8100"
+  ],
   "notBefore": 0,
   "bearerOnly": false,
   "consentRequired": false,
@@ -58,14 +65,31 @@ This example uses the default `master` realm and `admin` user.
   "protocol": "openid-connect",
   "attributes": {
     "oidc.ciba.grant.enabled": "false",
+    "backchannel.logout.session.required": "true",
+    "post.logout.redirect.uris": "http://localhost:8100",
     "oauth2.device.authorization.grant.enabled": "false",
     "display.on.consent.screen": "false",
-    "backchannel.logout.session.required": "true",
     "backchannel.logout.revoke.offline.tokens": "false"
   },
   "authenticationFlowBindingOverrides": {},
   "fullScopeAllowed": true,
   "nodeReRegistrationTimeout": -1,
+  "protocolMappers": [
+    {
+      "name": "realm roles",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-realm-role-mapper",
+      "consentRequired": false,
+      "config": {
+        "multivalued": "true",
+        "userinfo.token.claim": "true",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "realm_roles",
+        "jsonType.label": "String"
+      }
+    }
+  ],
   "defaultClientScopes": [
     "web-origins",
     "acr",
