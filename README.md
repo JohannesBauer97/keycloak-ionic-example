@@ -161,3 +161,127 @@ Most of the configuration is self explaining, you can find the URLs for your Key
     this.oauthService.setupAutomaticSilentRefresh();
   }
 ```
+## Setup the app start
+When a user enters the app, we want to check if there is a valid access token or if the user needs to log in.
+
+```typescript
+export class AppComponent implements OnInit{
+  public hasValidAccessToken = false;
+  public realmRoles: string[] = [];
+
+  ngOnInit(): void {
+    /**
+     * Load discovery document when the app inits
+     */
+    this.oauthService.loadDiscoveryDocument()
+      .then(loadDiscoveryDocumentResult => {
+        console.log("loadDiscoveryDocument", loadDiscoveryDocumentResult);
+
+        /**
+         * Do we have a valid access token? -> User does not need to log in
+         */
+        this.hasValidAccessToken = this.oauthService.hasValidAccessToken();
+
+        /**
+         * Always call tryLogin after the app and discovery document loaded, because we could come back from Keycloak login page.
+         * The library needs this as a trigger to parse the query parameters we got from Keycloak.
+         */
+        this.oauthService.tryLogin().then(tryLoginResult => {
+          console.log("tryLogin", tryLoginResult);
+          if (this.hasValidAccessToken){
+            this.loadUserProfile();
+            this.realmRoles = this.getRealmRoles();
+          }
+        });
+
+      })
+      .catch(error => {
+        console.error("loadDiscoveryDocument", error);
+      });
+
+    /**
+     * The library offers a bunch of events.
+     * It would be better to filter out the events which are unrelated to access token - trying to keep this example small.
+     */
+    this.oauthService.events.subscribe(eventResult => {
+      console.debug("LibEvent", eventResult);
+      this.hasValidAccessToken = this.oauthService.hasValidAccessToken();
+    })
+  }
+````
+## Login
+Here we can use the library methods.
+```typescript
+  /**
+   * Calls the library loadDiscoveryDocumentAndLogin() method.
+   */
+  public login(): void {
+    this.oauthService.loadDiscoveryDocumentAndLogin()
+      .then(loadDiscoveryDocumentAndLoginResult => {
+        console.log("loadDiscoveryDocumentAndLogin", loadDiscoveryDocumentAndLoginResult);
+      })
+      .catch(error => {
+        console.error("loadDiscoveryDocumentAndLogin", error);
+      });
+  }
+````
+
+## Logout
+Here we can use the library methods.
+```typescript
+  /**
+   * Calls the library revokeTokenAndLogout() method.
+   */
+  public logout(): void {
+    this.oauthService.revokeTokenAndLogout()
+      .then(revokeTokenAndLogoutResult => {
+        console.log("revokeTokenAndLogout", revokeTokenAndLogoutResult);
+      })
+      .catch(error => {
+        console.error("revokeTokenAndLogout", error);
+      });
+  }
+````
+
+## Load Userprofile
+Here we can use the library methods.
+```typescript
+  /**
+   * Calls the library loadUserProfile() method and sets the result in this.userProfile.
+   */
+  public loadUserProfile(): void {
+    this.oauthService.loadUserProfile()
+      .then(loadUserProfileResult => {
+        console.log("loadUserProfile", loadUserProfileResult);
+        this.userProfile = loadUserProfileResult;
+      })
+      .catch(error => {
+        console.error("loadUserProfile", error);
+      });
+  }
+````
+## Get Realm Roles
+In the earlier chapters we configured the client in Keycloak that the realm roles are added as claims to the tokens.
+This method shows how to access them now.
+```typescript
+  /**
+   *  Use this method only when an id token is available.
+   *  This requires a specific mapper setup in Keycloak. (See README file)
+   *
+   *  Parses realm roles from identity claims.
+   */
+  public getRealmRoles(): string[] {
+    let idClaims = this.oauthService.getIdentityClaims()
+    if (!idClaims){
+      console.error("Couldn't get identity claims, make sure the user is signed in.")
+      return [];
+    }
+    if (!idClaims.hasOwnProperty("realm_roles")){
+      console.error("Keycloak didn't provide realm_roles in the token. Have you configured the predefined mapper realm roles correct?")
+      return [];
+    }
+
+    let realmRoles = idClaims["realm_roles"]
+    return realmRoles ?? [];
+  }
+````
