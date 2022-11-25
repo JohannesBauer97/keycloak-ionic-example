@@ -5,6 +5,8 @@
   "homepage": "https://ionicframework.com/",
   "scripts": {
     "start:web": "ionic serve",
+    "copyforios": "ionic capacitor copy ios",
+    "openiosproject": "ionic capacitor open ios",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",

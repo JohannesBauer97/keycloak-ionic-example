@@ -2,6 +2,7 @@ import { Component, NgZone, OnInit } from '@angular/core';
 import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
 import { App, URLOpenListenerEvent } from '@capacitor/app';
 import { Platform } from '@ionic/angular';
+import { UrlSerializer } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -19,7 +20,7 @@ export class AppComponent implements OnInit{
    * @param zone
    * @param platform
    */
-  constructor(private oauthService: OAuthService, private zone: NgZone, private platform: Platform) {
+  constructor(private oauthService: OAuthService, private zone: NgZone, private platform: Platform, private urlSerial: UrlSerializer) {
     if (this.platform.is('ios') && this.platform.is('capacitor')){
       this.configureIOS();
     }else if(this.platform.is('desktop')){
@@ -160,7 +161,7 @@ export class AppComponent implements OnInit{
     console.log("Using iOS configuration")
     let authConfig: AuthConfig = {
       issuer: "http://localhost:8080/realms/master",
-      redirectUri: "http://localhost:8100",
+      redirectUri: "myschema://home",
       clientId: 'example-ionic-app',
       responseType: 'code',
       scope: 'openid profile email offline_access',
@@ -176,6 +177,8 @@ export class AppComponent implements OnInit{
     App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
       this.zone.run(() => {
         console.log("appUrlOpen", event, event.url);
+        let url = this.urlSerial.parse(event.url);
+        console.log("parsedUrl", url);
       });
     });
   }
