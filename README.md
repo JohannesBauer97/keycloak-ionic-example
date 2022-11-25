@@ -129,3 +129,35 @@ You can see in the example code, that there is no home module. To keep the examp
 ## Setup app.module.ts
 1. Add `HttpClientModule` to imports
 2. Add `OAuthModule.forRoot()` to imports
+
+## Use and configure OAuthService
+Most of the configuration is self explaining, you can find the URLs for your Keycloak instance in `Realm settings -> Endpoints -> OpenID Endpoint Configuration`. If you're new to OAuth2 you should read into the concept and different authorization flows.
+
+`redirectUri` must be changed depending if the app is running as web, Android or iOS app. This is the URL which Keycloak uses to redirect the user back to your application after successful login, with tokens.
+* For web: use a web url
+* For iOS: use [universal links](https://developer.apple.com/ios/universal-links/) or [url schemas](https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app)
+* For Android: use [app deep linking](https://developer.android.com/training/app-links/deep-linking)
+
+*app.component.ts*
+```typescript
+  private authConfig: AuthConfig = {
+    issuer: "http://localhost:8080/realms/master",
+    redirectUri: "http://localhost:8100",
+    clientId: 'example-ionic-app',
+    responseType: 'code',
+    scope: 'openid profile email offline_access',
+    // Revocation Endpoint must be set manually when using Keycloak
+    // See: https://github.com/manfredsteyer/angular-oauth2-oidc/issues/794
+    revocationEndpoint: "http://localhost:8080/realms/master/protocol/openid-connect/revoke",
+    showDebugInformation: true
+  }
+
+  /**
+   * Configuring the library
+   * @param oauthService
+   */
+  constructor(private oauthService: OAuthService) {
+    this.oauthService.configure(this.authConfig);
+    this.oauthService.setupAutomaticSilentRefresh();
+  }
+```
