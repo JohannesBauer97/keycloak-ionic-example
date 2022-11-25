@@ -133,7 +133,7 @@ You can see in the example code, that there is no home module. To keep the examp
 ## Use and configure OAuthService
 Most of the configuration is self explaining, you can find the URLs for your Keycloak instance in `Realm settings -> Endpoints -> OpenID Endpoint Configuration`. If you're new to OAuth2 you should read into the concept and different authorization flows.
 
-`redirectUri` must be changed depending if the app is running as web, Android or iOS app. This is the URL which Keycloak uses to redirect the user back to your application after successful login, with tokens.
+`redirectUri` must be changed depending if the app is running as web, Android or iOS app. This is the URL which Keycloak uses to redirect the user back to your application after successful login, with tokens. Make sure to use the IDENTICAL redirectUri in you Keycloak client config already a missing slash will give you the error "invalid redirect_uri".
 * For web: use a web url
 * For iOS: use [universal links](https://developer.apple.com/ios/universal-links/) or [url schemas](https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app)
 * For Android: use [app deep linking](https://developer.android.com/training/app-links/deep-linking)
