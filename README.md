@@ -136,7 +136,7 @@ ionic capacitor add ios
 1. Add `HttpClientModule` to imports
 2. Add `OAuthModule.forRoot()` to imports
 
-## Use and configure OAuthService
+## Use and configure OAuthService (web)
 Most of the configuration is self explaining, you can find the URLs for your Keycloak instance in `Realm settings -> Endpoints -> OpenID Endpoint Configuration`. If you're new to OAuth2 you should read into the concept and different authorization flows.
 
 `redirectUri` must be changed depending if the app is running as web, Android or iOS app. This is the URL which Keycloak uses to redirect the user back to your application after successful login, with tokens. Make sure to use the IDENTICAL redirectUri in you Keycloak client config already a missing slash will give you the error "invalid redirect_uri".
@@ -167,6 +167,32 @@ Most of the configuration is self explaining, you can find the URLs for your Key
     this.oauthService.setupAutomaticSilentRefresh();
   }
 ```
+## Use and configure OAuthService (iOS)
+
+*app.component.ts*
+```typescript
+  private authConfig: AuthConfig = {
+    issuer: "http://localhost:8080/realms/master",
+    redirectUri: "",
+    clientId: 'example-ionic-app',
+    responseType: 'code',
+    scope: 'openid profile email offline_access',
+    // Revocation Endpoint must be set manually when using Keycloak
+    // See: https://github.com/manfredsteyer/angular-oauth2-oidc/issues/794
+    revocationEndpoint: "http://localhost:8080/realms/master/protocol/openid-connect/revoke",
+    showDebugInformation: true
+  }
+
+  /**
+   * Configuring the library
+   * @param oauthService
+   */
+  constructor(private oauthService: OAuthService) {
+    this.oauthService.configure(this.authConfig);
+    this.oauthService.setupAutomaticSilentRefresh();
+  }
+```
+
 ## Setup the app start
 When a user enters the app, we want to check if there is a valid access token or if the user needs to log in.
 
