@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit } from '@angular/core';
 import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
+import { App, URLOpenListenerEvent } from '@capacitor/app';
+import { Platform } from '@ionic/angular';
 
 @Component({
   selector: 'app-root',
@@ -11,25 +13,20 @@ export class AppComponent implements OnInit{
   public hasValidAccessToken = false;
   public realmRoles: string[] = [];
 
-  private authConfig: AuthConfig = {
-    issuer: "http://localhost:8080/realms/master",
-    redirectUri: "http://localhost:8100",
-    clientId: 'example-ionic-app',
-    responseType: 'code',
-    scope: 'openid profile email offline_access',
-    // Revocation Endpoint must be set manually when using Keycloak
-    // See: https://github.com/manfredsteyer/angular-oauth2-oidc/issues/794
-    revocationEndpoint: "http://localhost:8080/realms/master/protocol/openid-connect/revoke",
-    showDebugInformation: true
-  }
-
   /**
    * Configuring the library
    * @param oauthService
+   * @param zone
+   * @param platform
    */
-  constructor(private oauthService: OAuthService) {
-    this.oauthService.configure(this.authConfig);
-    this.oauthService.setupAutomaticSilentRefresh();
+  constructor(private oauthService: OAuthService, private zone: NgZone, private platform: Platform) {
+    if (this.platform.is('ios') && this.platform.is('capacitor')){
+      this.configureIOS();
+    }else if(this.platform.is('desktop')){
+      this.configureWeb();
+    }else{
+      alert("This platform is not supported.")
+    }
   }
 
   ngOnInit(): void {
@@ -131,6 +128,56 @@ export class AppComponent implements OnInit{
 
     let realmRoles = idClaims["realm_roles"]
     return realmRoles ?? [];
+  }
+
+  /**
+   * Configures the app for web deployment
+   * @private
+   */
+  private configureWeb(): void {
+    console.log("Using web configuration")
+    let authConfig: AuthConfig = {
+      issuer: "http://localhost:8080/realms/master",
+      redirectUri: "http://localhost:8100",
+      clientId: 'example-ionic-app',
+      responseType: 'code',
+      scope: 'openid profile email offline_access',
+      // Revocation Endpoint must be set manually when using Keycloak
+      // See: https://github.com/manfredsteyer/angular-oauth2-oidc/issues/794
+      revocationEndpoint: "http://localhost:8080/realms/master/protocol/openid-connect/revoke",
+      showDebugInformation: true,
+      requireHttps: false
+    }
+    this.oauthService.configure(authConfig);
+    this.oauthService.setupAutomaticSilentRefresh();
+  }
+
+  /**
+   * Configures the app for ios deployment
+   * @private
+   */
+  private configureIOS(): void {
+    console.log("Using iOS configuration")
+    let authConfig: AuthConfig = {
+      issuer: "http://localhost:8080/realms/master",
+      redirectUri: "http://localhost:8100",
+      clientId: 'example-ionic-app',
+      responseType: 'code',
+      scope: 'openid profile email offline_access',
+      // Revocation Endpoint must be set manually when using Keycloak
+      // See: https://github.com/manfredsteyer/angular-oauth2-oidc/issues/794
+      revocationEndpoint: "http://localhost:8080/realms/master/protocol/openid-connect/revoke",
+      showDebugInformation: true,
+      requireHttps: false
+    }
+    this.oauthService.configure(authConfig);
+    this.oauthService.setupAutomaticSilentRefresh();
+
+    App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
+      this.zone.run(() => {
+        console.log("appUrlOpen", event, event.url);
+      });
+    });
   }
 
 }
