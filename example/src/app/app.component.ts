@@ -13,7 +13,7 @@ export class AppComponent implements OnInit{
 
   private authConfig: AuthConfig = {
     issuer: "http://localhost:8080/realms/master",
-    redirectUri: "http://localhost:8100/",
+    redirectUri: "http://localhost:8100",
     clientId: 'example-ionic-app',
     responseType: 'code',
     scope: 'openid profile email offline_access',
