@@ -168,30 +168,8 @@ Most of the configuration is self explaining, you can find the URLs for your Key
   }
 ```
 ## Use and configure OAuthService (iOS)
-
-*app.component.ts*
-```typescript
-  private authConfig: AuthConfig = {
-    issuer: "http://localhost:8080/realms/master",
-    redirectUri: "",
-    clientId: 'example-ionic-app',
-    responseType: 'code',
-    scope: 'openid profile email offline_access',
-    // Revocation Endpoint must be set manually when using Keycloak
-    // See: https://github.com/manfredsteyer/angular-oauth2-oidc/issues/794
-    revocationEndpoint: "http://localhost:8080/realms/master/protocol/openid-connect/revoke",
-    showDebugInformation: true
-  }
-
-  /**
-   * Configuring the library
-   * @param oauthService
-   */
-  constructor(private oauthService: OAuthService) {
-    this.oauthService.configure(this.authConfig);
-    this.oauthService.setupAutomaticSilentRefresh();
-  }
-```
+1. xcode url schema setup https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app / or universal links https://capacitorjs.com/docs/guides/deep-links
+2. listen to url changes in angular and provide to auth lib
 
 ## Setup the app start
 When a user enters the app, we want to check if there is a valid access token or if the user needs to log in.
