@@ -125,6 +125,11 @@ npm i angular-oauth2-oidc --save
 ## Remove the home module
 You can see in the example code, that there is no home module. To keep the example simple and small, everything is implemented in the app module/component.
 
+## Add Capacitor for iOS
+```shellsession
+ionic capacitor add ios
+```
+
 # Connecting Keycloak with Ionic
 ## Setup app.module.ts
 1. Add `HttpClientModule` to imports
