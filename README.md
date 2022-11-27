@@ -31,8 +31,10 @@ Follow these instructions careful or import the json file at the end to have the
 
 ### Create the example client
 1. Create the client with id `example-ionic-app` on `master` realm (default settings in Keycloak 20)
-2. Add `http://localhost:8100` to Valid redirect URIs, Valid post logout redirect URIs and Web origins
+2. Add `http://localhost:8100` to Valid redirect URIs, Valid post logout redirect URIs and Web origins (depending on your platform - see below)
 3. Add the predefined token mapper "realm roles" to the client. Navigate to clients -> open example-ionic-app -> open tab client scopes -> open example-ionic-app-dedicated -> add predefined mapper -> search & add "realm roles" mapper -> open realm roles mapper -> edit token claim name from "realm_access.roles" to "realm_roles" -> save
+
+**Step 2** is dependent on the target Platform (iOS, Android, Web) and the deployment type (Development or Production). For production you'll need to configure your domain instead localhost. For iOS deployment you'll need to configure your universal link / url schema as (post logout) redirect url. For Android you'll do the same. The exported example-ionic-app client below is configured for web & iOS development deployment.
 
 __Why do we need the token mapper?__
 When you get a JWT access/id token from Keycloak with the default settings, and inspect the token with [jwt.io](https://jwt.io/) you'll see that realm roles are actually already part of the token. But every provider (Keycloak, IdentityServer, Auth0,...) might use a different naming for the fields where the roles are listed. This cannot be handled by a generic OAuth library. But we can configure Keycloak to add the list of realm roles to any token claim we want. And this is what we've done. After adding the token mapper, a new claim "realm_roles" is added which contains a list of the assigned user roles. If you're working with client roles, you can add the predefined mapper "client roles". Make sure that you use no dots in the token claim name, this cannot be handled by the generic OAuth library.
@@ -146,34 +148,58 @@ Most of the configuration is self explaining, you can find the URLs for your Key
 * For iOS: use [universal links](https://developer.apple.com/ios/universal-links/) or [url schemas](https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app)
 * For Android: use [app deep linking](https://developer.android.com/training/app-links/deep-linking)
 
-*app.component.ts*
+*Auth Config for desktop web applications*
 ```typescript
-  private authConfig: AuthConfig = {
-    issuer: "http://localhost:8080/realms/master",
-    redirectUri: "http://localhost:8100",
-    clientId: 'example-ionic-app',
-    responseType: 'code',
-    scope: 'openid profile email offline_access',
-    // Revocation Endpoint must be set manually when using Keycloak
-    // See: https://github.com/manfredsteyer/angular-oauth2-oidc/issues/794
-    revocationEndpoint: "http://localhost:8080/realms/master/protocol/openid-connect/revoke",
-    showDebugInformation: true
-  }
-
-  /**
-   * Configuring the library
-   * @param oauthService
-   */
-  constructor(private oauthService: OAuthService) {
-    this.oauthService.configure(this.authConfig);
-    this.oauthService.setupAutomaticSilentRefresh();
-  }
+let authConfig: AuthConfig = {
+      issuer: "http://localhost:8080/realms/master",
+      redirectUri: "http://localhost:8100",
+      clientId: 'example-ionic-app',
+      responseType: 'code',
+      scope: 'openid profile email offline_access',
+      // Revocation Endpoint must be set manually when using Keycloak
+      // See: https://github.com/manfredsteyer/angular-oauth2-oidc/issues/794
+      revocationEndpoint: "http://localhost:8080/realms/master/protocol/openid-connect/revoke",
+      showDebugInformation: true,
+      requireHttps: false
+    }
 ```
 ## Use and configure OAuthService (iOS)
-1. xcode url schema setup https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app / or universal links https://capacitorjs.com/docs/guides/deep-links
-2. listen to url changes in angular
-3. parse url and add to query params angular router 
-4. try login
+For iOS this example uses [url schemas](https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app) and not universal links (because it requires a domain + webserver). Whether you use universal links or url schemas, the concept is the same.
+
+1. Open the XCode project and configure an url schema, this example used `my.identifier` as identifier and `myschema` as schema with role `Editor`
+2. Add `myschema://login` as redirect uri and post logout uri in the Keycloak client config
+3. Use `myschema://login` as new redirect uri in your Angular project
+```typescript
+let authConfig: AuthConfig = {
+      issuer: "http://localhost:8080/realms/master",
+      redirectUri: "myschema://login", // needs to be a working universal link / url schema (setup in xcode)
+      clientId: 'example-ionic-app',
+      responseType: 'code',
+      scope: 'openid profile email offline_access',
+      // Revocation Endpoint must be set manually when using Keycloak
+      // See: https://github.com/manfredsteyer/angular-oauth2-oidc/issues/794
+      revocationEndpoint: "http://localhost:8080/realms/master/protocol/openid-connect/revoke",
+      showDebugInformation: true,
+      requireHttps: false
+    }
+```
+4. Listen when the App is opened by a URL. But we have to detect if it's the Keycloak redirect, for that we used `/login` in our schema.
+```typescript
+    App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
+      let url = new URL(event.url);
+      if(url.host != "login"){
+        // Only interested in redirects to myschema://login
+        return;
+      }
+      
+    });
+```
+5. After the user is redirected back to the app, parse the query parameters and append them to our current active route. Afterwards trigger 
+6. 
+7. xcode url schema setup https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app / or universal links https://capacitorjs.com/docs/guides/deep-links
+8. listen to url changes in angular
+9. parse url and add to query params angular router 
+10. try login
 
 ## Setup the app start
 When a user enters the app, we want to check if there is a valid access token or if the user needs to log in.
