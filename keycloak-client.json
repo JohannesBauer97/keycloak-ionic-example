@@ -1,0 +1,75 @@
+{
+  "clientId": "example-ionic-app",
+  "name": "example-ionic-app",
+  "description": "",
+  "rootUrl": "",
+  "adminUrl": "",
+  "baseUrl": "",
+  "surrogateAuthRequired": false,
+  "enabled": true,
+  "alwaysDisplayInConsole": false,
+  "clientAuthenticatorType": "client-secret",
+  "redirectUris": [
+    "myschema://login",
+    "http://localhost:8100"
+  ],
+  "webOrigins": [
+    "capacitor://localhost",
+    "http://localhost:8100"
+  ],
+  "notBefore": 0,
+  "bearerOnly": false,
+  "consentRequired": false,
+  "standardFlowEnabled": true,
+  "implicitFlowEnabled": false,
+  "directAccessGrantsEnabled": true,
+  "serviceAccountsEnabled": false,
+  "publicClient": true,
+  "frontchannelLogout": true,
+  "protocol": "openid-connect",
+  "attributes": {
+    "oidc.ciba.grant.enabled": "false",
+    "backchannel.logout.session.required": "true",
+    "post.logout.redirect.uris": "http://localhost:8100##myschema://login",
+    "oauth2.device.authorization.grant.enabled": "false",
+    "display.on.consent.screen": "false",
+    "backchannel.logout.revoke.offline.tokens": "false"
+  },
+  "authenticationFlowBindingOverrides": {},
+  "fullScopeAllowed": true,
+  "nodeReRegistrationTimeout": -1,
+  "protocolMappers": [
+    {
+      "name": "realm roles",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-realm-role-mapper",
+      "consentRequired": false,
+      "config": {
+        "multivalued": "true",
+        "userinfo.token.claim": "true",
+        "id.token.claim": "true",
+        "access.token.claim": "true",
+        "claim.name": "realm_roles",
+        "jsonType.label": "String"
+      }
+    }
+  ],
+  "defaultClientScopes": [
+    "web-origins",
+    "acr",
+    "roles",
+    "profile",
+    "email"
+  ],
+  "optionalClientScopes": [
+    "address",
+    "phone",
+    "offline_access",
+    "microprofile-jwt"
+  ],
+  "access": {
+    "view": true,
+    "configure": true,
+    "manage": true
+  }
+}
