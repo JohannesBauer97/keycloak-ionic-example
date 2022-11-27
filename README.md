@@ -51,9 +51,11 @@ When you get a JWT access/id token from Keycloak with the default settings, and 
   "alwaysDisplayInConsole": false,
   "clientAuthenticatorType": "client-secret",
   "redirectUris": [
+    "myschema://login",
     "http://localhost:8100"
   ],
   "webOrigins": [
+    "capacitor://localhost",
     "http://localhost:8100"
   ],
   "notBefore": 0,
@@ -69,7 +71,7 @@ When you get a JWT access/id token from Keycloak with the default settings, and 
   "attributes": {
     "oidc.ciba.grant.enabled": "false",
     "backchannel.logout.session.required": "true",
-    "post.logout.redirect.uris": "http://localhost:8100",
+    "post.logout.redirect.uris": "http://localhost:8100##myschema://login",
     "oauth2.device.authorization.grant.enabled": "false",
     "display.on.consent.screen": "false",
     "backchannel.logout.revoke.offline.tokens": "false"
