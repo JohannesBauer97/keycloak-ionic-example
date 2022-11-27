@@ -146,7 +146,7 @@ Most of the configuration is self explaining, you can find the URLs for your Key
 `redirectUri` must be changed depending if the app is running as web, Android or iOS app. This is the URL which Keycloak uses to redirect the user back to your application after successful login, with tokens. Make sure to use the IDENTICAL redirectUri in you Keycloak client config already a missing slash will give you the error "invalid redirect_uri".
 * For web: use a web url
 * For iOS: use [universal links](https://developer.apple.com/ios/universal-links/) or [url schemas](https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app)
-* For Android: use [app deep linking](https://developer.android.com/training/app-links/deep-linking)
+* For Android: use [app links](https://developer.android.com/training/app-links)
 
 *Auth Config for desktop web applications*
 ```typescript
@@ -194,12 +194,52 @@ let authConfig: AuthConfig = {
       
     });
 ```
-5. After the user is redirected back to the app, parse the query parameters and append them to our current active route. Afterwards trigger 
-6. 
-7. xcode url schema setup https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app / or universal links https://capacitorjs.com/docs/guides/deep-links
-8. listen to url changes in angular
-9. parse url and add to query params angular router 
-10. try login
+5. After the user is redirected back to the app, parse the query parameters and append them to our current active route. Afterwards trigger `tryLogin`.
+```typescript
+App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
+      let url = new URL(event.url);
+      if(url.host != "login"){
+        // Only interested in redirects to myschema://login
+        return;
+      }
+
+      this.zone.run(() => {
+
+        // Building a query param object for Angular Router
+        const queryParams: Params = {};
+        for (const [key, value] of url.searchParams.entries()) {
+          queryParams[key] = value;
+        }
+
+        // Add query params to current route
+        this.router.navigate(
+          [],
+          {
+            relativeTo: this.activatedRoute,
+            queryParams: queryParams,
+            queryParamsHandling: 'merge', // remove to replace all query params by provided
+          })
+          .then(navigateResult => {
+            // After updating the route, trigger login in oauthlib and
+            this.oauthService.tryLogin().then(tryLoginResult => {
+              console.log("tryLogin", tryLoginResult);
+              if (this.hasValidAccessToken){
+                this.loadUserProfile();
+                this.realmRoles = this.getRealmRoles();
+              }
+            })
+          })
+          .catch(error => console.error(error));
+
+      });
+    });
+```
+6. The OAuth library detects the query params and continues the login flow.
+
+## Use and configure OAuthService (Android)
+The example is not having an Android project attached, but the concept for iOS and Android are the same.
+
+[Android uses app links](https://developer.android.com/training/app-links) instead universal links/url schemas like in iOS.
 
 ## Setup the app start
 When a user enters the app, we want to check if there is a valid access token or if the user needs to log in.
