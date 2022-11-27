@@ -1,6 +1,8 @@
 # Keycloak Ionic (Capacitor) Example
 Showing how to connect your Ionic app with a Keycloak instance.
 
+![Demo](https://github.com/JohannesBauer97/keycloak-ionic-example/blob/main/demo.gif?raw=true)
+
 # Initial Project Setup
 ## Requirements
 * [NodeJS & NPM](https://nodejs.org/en/)
