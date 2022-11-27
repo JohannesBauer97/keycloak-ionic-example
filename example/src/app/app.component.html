@@ -11,14 +11,17 @@
     <div id="container">
       <ion-button (click)="login()" [disabled]="hasValidAccessToken">Login</ion-button>
       <ion-button (click)="logout()" [disabled]="!hasValidAccessToken">Logout</ion-button>
+
       <div class="keycloak-data" *ngIf="realmRoles.length > 0">
         <p>Realm Roles</p>
         <pre>{{realmRoles | json}}</pre>
       </div>
+
       <div class="keycloak-data" *ngIf="userProfile">
         <p>UserProfile</p>
-        <pre>{{userProfile | json}}</pre>
+        <span>{{userProfile | json}}</span>
       </div>
+
     </div>
   </ion-content>
 

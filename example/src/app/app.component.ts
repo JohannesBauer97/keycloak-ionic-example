@@ -2,7 +2,7 @@ import { Component, NgZone, OnInit } from '@angular/core';
 import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
 import { App, URLOpenListenerEvent } from '@capacitor/app';
 import { Platform } from '@ionic/angular';
-import { UrlSerializer } from '@angular/router';
+import { ActivatedRoute, Params, Router, UrlSerializer } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -19,8 +19,11 @@ export class AppComponent implements OnInit{
    * @param oauthService
    * @param zone
    * @param platform
+   * @param activatedRoute
+   * @param router
    */
-  constructor(private oauthService: OAuthService, private zone: NgZone, private platform: Platform, private urlSerial: UrlSerializer) {
+  constructor(private oauthService: OAuthService, private zone: NgZone, private platform: Platform,
+              private activatedRoute: ActivatedRoute, private router: Router) {
     if (this.platform.is('ios') && this.platform.is('capacitor')){
       this.configureIOS();
     }else if(this.platform.is('desktop')){
@@ -90,6 +93,8 @@ export class AppComponent implements OnInit{
     this.oauthService.revokeTokenAndLogout()
       .then(revokeTokenAndLogoutResult => {
         console.log("revokeTokenAndLogout", revokeTokenAndLogoutResult);
+        this.userProfile = null;
+        this.realmRoles = [];
       })
       .catch(error => {
         console.error("revokeTokenAndLogout", error);
@@ -161,7 +166,7 @@ export class AppComponent implements OnInit{
     console.log("Using iOS configuration")
     let authConfig: AuthConfig = {
       issuer: "http://localhost:8080/realms/master",
-      redirectUri: "myschema://home",
+      redirectUri: "myschema://login", // needs to be a working universal link / url schema (setup in xcode)
       clientId: 'example-ionic-app',
       responseType: 'code',
       scope: 'openid profile email offline_access',
@@ -175,10 +180,40 @@ export class AppComponent implements OnInit{
     this.oauthService.setupAutomaticSilentRefresh();
 
     App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
+      let url = new URL(event.url);
+      if(url.host != "login"){
+        // Only interested in redirects to myschema://login
+        return;
+      }
+
       this.zone.run(() => {
-        console.log("appUrlOpen", event, event.url);
-        let url = this.urlSerial.parse(event.url);
-        console.log("parsedUrl", url);
+
+        // Building a query param object for Angular Router
+        const queryParams: Params = {};
+        for (const [key, value] of url.searchParams.entries()) {
+          queryParams[key] = value;
+        }
+
+        // Add query params to current route
+        this.router.navigate(
+          [],
+          {
+            relativeTo: this.activatedRoute,
+            queryParams: queryParams,
+            queryParamsHandling: 'merge', // remove to replace all query params by provided
+          })
+          .then(navigateResult => {
+            // After updating the route, trigger login in oauthlib and
+            this.oauthService.tryLogin().then(tryLoginResult => {
+              console.log("tryLogin", tryLoginResult);
+              if (this.hasValidAccessToken){
+                this.loadUserProfile();
+                this.realmRoles = this.getRealmRoles();
+              }
+            })
+          })
+          .catch(error => console.error(error));
+
       });
     });
   }
