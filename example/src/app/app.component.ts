@@ -9,6 +9,7 @@ import { ActivatedRoute, Params, Router, UrlSerializer } from '@angular/router';
   templateUrl: 'app.component.html',
   styleUrls: ['app.component.scss'],
 })
+
 export class AppComponent implements OnInit{
   public userProfile: any;
   public hasValidAccessToken = false;
@@ -22,13 +23,19 @@ export class AppComponent implements OnInit{
    * @param activatedRoute
    * @param router
    */
-  constructor(private oauthService: OAuthService, private zone: NgZone, private platform: Platform,
-              private activatedRoute: ActivatedRoute, private router: Router) {
-    if (this.platform.is('ios') && this.platform.is('capacitor')){
+  constructor(
+    private oauthService: OAuthService, 
+    private zone: NgZone, 
+    private platform: Platform, 
+    private activatedRoute: ActivatedRoute, 
+    private router: Router
+  ) {
+    // Identify the platform it is running from
+    if (this.platform.is('ios') && this.platform.is('capacitor')) {
       this.configureIOS();
-    }else if(this.platform.is('desktop')){
+    } else if(this.platform.is('desktop')) {
       this.configureWeb();
-    }else{
+    } else {
       alert("This platform is not supported.")
     }
   }
@@ -37,8 +44,7 @@ export class AppComponent implements OnInit{
     /**
      * Load discovery document when the app inits
      */
-    this.oauthService.loadDiscoveryDocument()
-      .then(loadDiscoveryDocumentResult => {
+    this.oauthService.loadDiscoveryDocument().then(loadDiscoveryDocumentResult => {
         console.log("loadDiscoveryDocument", loadDiscoveryDocumentResult);
 
         /**
@@ -57,9 +63,7 @@ export class AppComponent implements OnInit{
             this.realmRoles = this.getRealmRoles();
           }
         });
-
-      })
-      .catch(error => {
+      }).catch(error => {
         console.error("loadDiscoveryDocument", error);
       });
 
@@ -77,42 +81,36 @@ export class AppComponent implements OnInit{
    * Calls the library loadDiscoveryDocumentAndLogin() method.
    */
   public login(): void {
-    this.oauthService.loadDiscoveryDocumentAndLogin()
-      .then(loadDiscoveryDocumentAndLoginResult => {
-        console.log("loadDiscoveryDocumentAndLogin", loadDiscoveryDocumentAndLoginResult);
-      })
-      .catch(error => {
-        console.error("loadDiscoveryDocumentAndLogin", error);
-      });
+    this.oauthService.loadDiscoveryDocumentAndLogin().then(loadDiscoveryDocumentAndLoginResult => {
+      console.log("loadDiscoveryDocumentAndLogin", loadDiscoveryDocumentAndLoginResult);
+    }).catch(error => {
+      console.error("loadDiscoveryDocumentAndLogin", error);
+    });
   }
 
   /**
    * Calls the library revokeTokenAndLogout() method.
    */
   public logout(): void {
-    this.oauthService.revokeTokenAndLogout()
-      .then(revokeTokenAndLogoutResult => {
-        console.log("revokeTokenAndLogout", revokeTokenAndLogoutResult);
-        this.userProfile = null;
-        this.realmRoles = [];
-      })
-      .catch(error => {
-        console.error("revokeTokenAndLogout", error);
-      });
+    this.oauthService.revokeTokenAndLogout().then(revokeTokenAndLogoutResult => {
+      console.log("revokeTokenAndLogout", revokeTokenAndLogoutResult);
+      this.userProfile = null;
+      this.realmRoles = [];
+    }).catch(error => {
+      console.error("revokeTokenAndLogout", error);
+    });
   }
 
   /**
    * Calls the library loadUserProfile() method and sets the result in this.userProfile.
    */
   public loadUserProfile(): void {
-    this.oauthService.loadUserProfile()
-      .then(loadUserProfileResult => {
-        console.log("loadUserProfile", loadUserProfileResult);
-        this.userProfile = loadUserProfileResult;
-      })
-      .catch(error => {
-        console.error("loadUserProfile", error);
-      });
+    this.oauthService.loadUserProfile().then(loadUserProfileResult => {
+      console.log("loadUserProfile", loadUserProfileResult);
+      this.userProfile = loadUserProfileResult;
+    }).catch(error => {
+      console.error("loadUserProfile", error);
+    });
   }
 
   /**
@@ -123,11 +121,12 @@ export class AppComponent implements OnInit{
    */
   public getRealmRoles(): string[] {
     let idClaims = this.oauthService.getIdentityClaims()
-    if (!idClaims){
+    if (!idClaims) {
       console.error("Couldn't get identity claims, make sure the user is signed in.")
       return [];
     }
-    if (!idClaims.hasOwnProperty("realm_roles")){
+
+    if (!idClaims.hasOwnProperty("realm_roles")) {
       console.error("Keycloak didn't provide realm_roles in the token. Have you configured the predefined mapper realm roles correct?")
       return [];
     }
@@ -141,11 +140,12 @@ export class AppComponent implements OnInit{
    * @private
    */
   private configureWeb(): void {
-    console.log("Using web configuration")
+    console.log("Using web configuration");
+
     let authConfig: AuthConfig = {
-      issuer: "http://localhost:8080/realms/master",
+      issuer: "http://localhost:8080/realms/toks",
       redirectUri: "http://localhost:8100",
-      clientId: 'example-ionic-app',
+      clientId: 'toks-web',
       responseType: 'code',
       scope: 'openid profile email offline_access',
       // Revocation Endpoint must be set manually when using Keycloak
@@ -153,7 +153,8 @@ export class AppComponent implements OnInit{
       revocationEndpoint: "http://localhost:8080/realms/master/protocol/openid-connect/revoke",
       showDebugInformation: true,
       requireHttps: false
-    }
+    };
+
     this.oauthService.configure(authConfig);
     this.oauthService.setupAutomaticSilentRefresh();
   }
@@ -163,31 +164,33 @@ export class AppComponent implements OnInit{
    * @private
    */
   private configureIOS(): void {
-    console.log("Using iOS configuration")
+    console.log("Using iOS configuration");
+
     let authConfig: AuthConfig = {
-      issuer: "http://localhost:8080/realms/master",
+      issuer: "http://192.168.64.1:8080/realms/toks",
       redirectUri: "myschema://login", // needs to be a working universal link / url schema (setup in xcode)
-      clientId: 'example-ionic-app',
+      clientId: 'toks-web',
       responseType: 'code',
       scope: 'openid profile email offline_access',
       // Revocation Endpoint must be set manually when using Keycloak
       // See: https://github.com/manfredsteyer/angular-oauth2-oidc/issues/794
-      revocationEndpoint: "http://localhost:8080/realms/master/protocol/openid-connect/revoke",
+      revocationEndpoint: "http://192.168.64.1:8080/realms/master/protocol/openid-connect/revoke",
       showDebugInformation: true,
       requireHttps: false
-    }
+    };
+
     this.oauthService.configure(authConfig);
     this.oauthService.setupAutomaticSilentRefresh();
 
     App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
       let url = new URL(event.url);
-      if(url.host != "login"){
+
+      if (url.host != "login") {
         // Only interested in redirects to myschema://login
         return;
       }
 
       this.zone.run(() => {
-
         // Building a query param object for Angular Router
         const queryParams: Params = {};
         for (const [key, value] of url.searchParams.entries()) {
@@ -195,25 +198,21 @@ export class AppComponent implements OnInit{
         }
 
         // Add query params to current route
-        this.router.navigate(
-          [],
-          {
-            relativeTo: this.activatedRoute,
-            queryParams: queryParams,
-            queryParamsHandling: 'merge', // remove to replace all query params by provided
+        this.router.navigate([], {
+          relativeTo: this.activatedRoute,
+          queryParams: queryParams,
+          queryParamsHandling: 'merge', // remove to replace all query params by provided
+        })
+        .then(navigateResult => {
+          // After updating the route, trigger login in oauthlib and
+          this.oauthService.tryLogin().then(tryLoginResult => {
+            console.log("tryLogin", tryLoginResult);
+            if (this.hasValidAccessToken){
+              this.loadUserProfile();
+              this.realmRoles = this.getRealmRoles();
+            }
           })
-          .then(navigateResult => {
-            // After updating the route, trigger login in oauthlib and
-            this.oauthService.tryLogin().then(tryLoginResult => {
-              console.log("tryLogin", tryLoginResult);
-              if (this.hasValidAccessToken){
-                this.loadUserProfile();
-                this.realmRoles = this.getRealmRoles();
-              }
-            })
-          })
-          .catch(error => console.error(error));
-
+        }).catch(error => console.error(error));
       });
     });
   }

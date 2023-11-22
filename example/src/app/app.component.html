@@ -2,7 +2,7 @@
   <ion-header [translucent]="true">
     <ion-toolbar>
       <ion-title>
-        Keycloak Example App
+        Keycloak Example App Ionic
       </ion-title>
     </ion-toolbar>
   </ion-header>
@@ -14,15 +14,13 @@
 
       <div class="keycloak-data" *ngIf="realmRoles.length > 0">
         <p>Realm Roles</p>
-        <pre>{{realmRoles | json}}</pre>
+        <pre>{{ realmRoles | json }}</pre>
       </div>
 
       <div class="keycloak-data" *ngIf="userProfile">
-        <p>UserProfile</p>
-        <span>{{userProfile | json}}</span>
+        <p>User Profile</p>
+        <span>{{ userProfile | json }}</span>
       </div>
-
     </div>
   </ion-content>
-
 </ion-app>
