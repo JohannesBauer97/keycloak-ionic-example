@@ -3,6 +3,7 @@ import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
 import { App, URLOpenListenerEvent } from '@capacitor/app';
 import { Platform } from '@ionic/angular';
 import { ActivatedRoute, Params, Router, UrlSerializer } from '@angular/router';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -143,14 +144,14 @@ export class AppComponent implements OnInit{
     console.log("Using web configuration");
 
     let authConfig: AuthConfig = {
-      issuer: "http://localhost:8080/realms/toks",
-      redirectUri: "http://localhost:8100",
-      clientId: 'toks-web',
+      issuer: `${ environment.keycloak.web.issuer }/realms/toks`,
+      redirectUri: `${ environment.keycloak.web.redirectUri }`,
+      clientId: `${ environment.keycloak.web.clientId }`,
       responseType: 'code',
       scope: 'openid profile email offline_access',
       // Revocation Endpoint must be set manually when using Keycloak
       // See: https://github.com/manfredsteyer/angular-oauth2-oidc/issues/794
-      revocationEndpoint: "http://localhost:8080/realms/master/protocol/openid-connect/revoke",
+      revocationEndpoint: `${ environment.keycloak.web.revocationEndpoint }/realms/master/protocol/openid-connect/revoke`,
       showDebugInformation: true,
       requireHttps: false
     };
@@ -167,14 +168,14 @@ export class AppComponent implements OnInit{
     console.log("Using iOS configuration");
 
     let authConfig: AuthConfig = {
-      issuer: "http://192.168.64.1:8080/realms/toks",
-      redirectUri: "myschema://login", // needs to be a working universal link / url schema (setup in xcode)
-      clientId: 'toks-web',
+      issuer: `${ environment.keycloak.ios.issuer }/realms/toks`,
+      redirectUri: `${ environment.keycloak.ios.redirectUri }`, // needs to be a working universal link / url schema (setup in xcode)
+      clientId: `${ environment.keycloak.ios.clientId }`,
       responseType: 'code',
       scope: 'openid profile email offline_access',
       // Revocation Endpoint must be set manually when using Keycloak
       // See: https://github.com/manfredsteyer/angular-oauth2-oidc/issues/794
-      revocationEndpoint: "http://192.168.64.1:8080/realms/master/protocol/openid-connect/revoke",
+      revocationEndpoint: `${ environment.keycloak.web.revocationEndpoint }/realms/master/protocol/openid-connect/revoke`,
       showDebugInformation: true,
       requireHttps: false
     };
