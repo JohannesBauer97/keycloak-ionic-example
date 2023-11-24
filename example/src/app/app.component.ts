@@ -1,8 +1,12 @@
-import { Component, NgZone, OnInit } from '@angular/core';
-import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
-import { App, URLOpenListenerEvent } from '@capacitor/app';
-import { Platform } from '@ionic/angular';
 import { ActivatedRoute, Params, Router, UrlSerializer } from '@angular/router';
+import { App, URLOpenListenerEvent } from '@capacitor/app';
+import { Component, NgZone, OnInit } from '@angular/core';
+import { Platform } from '@ionic/angular';
+
+// Keycloak
+import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
+
+// Enviroments
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -11,7 +15,8 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['app.component.scss'],
 })
 
-export class AppComponent implements OnInit{
+export class AppComponent implements OnInit {
+
   public userProfile: any;
   public hasValidAccessToken = false;
   public realmRoles: string[] = [];
@@ -33,7 +38,7 @@ export class AppComponent implements OnInit{
   ) {
     // Identify the platform it is running from
     if (this.platform.is('ios') && this.platform.is('capacitor')) {
-      this.configureIOS();
+      this.configureMobile();
     } else if(this.platform.is('desktop')) {
       this.configureWeb();
     } else {
@@ -161,11 +166,11 @@ export class AppComponent implements OnInit{
   }
 
   /**
-   * Configures the app for ios deployment
+   * Configures the app for ios & android deployment
    * @private
    */
-  private configureIOS(): void {
-    console.log("Using iOS configuration");
+  private configureMobile(): void {
+    console.log("Using Mobile iOS & Android configuration");
 
     let authConfig: AuthConfig = {
       issuer: `${ environment.keycloak.ios.issuer }/realms/toks`,

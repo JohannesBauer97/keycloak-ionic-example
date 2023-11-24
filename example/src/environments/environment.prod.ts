@@ -8,10 +8,10 @@ export const environment = {
       revocationEndpoint: 'http://localhost:8080'
     },
     ios: {
-      issuer: 'http://192.168.64.1:8080',
+      issuer: 'http://192.168.1.21:8080',
       redirectUri: 'myschema://login',
       clientId: 'toks-web',
-      revocationEndpoint: 'http://192.168.64.1:8080'
+      revocationEndpoint: 'http://192.168.1.21:8080'
     }
   }
 };
