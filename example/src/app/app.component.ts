@@ -8,6 +8,7 @@ import { AuthConfig, OAuthService } from 'angular-oauth2-oidc';
 
 // Enviroments
 import { environment } from 'src/environments/environment';
+import { Device } from '@capacitor/device';
 
 @Component({
   selector: 'app-root',
@@ -37,7 +38,7 @@ export class AppComponent implements OnInit {
     private router: Router
   ) {
     // Identify the platform it is running from
-    if (this.platform.is('ios') && this.platform.is('capacitor')) {
+    if (this.platform.is('ios') || this.platform.is('android')) {
       this.configureMobile();
     } else if(this.platform.is('desktop')) {
       this.configureWeb();
@@ -173,16 +174,16 @@ export class AppComponent implements OnInit {
     console.log("Using Mobile iOS & Android configuration");
 
     let authConfig: AuthConfig = {
-      issuer: `${ environment.keycloak.ios.issuer }/realms/toks`,
-      redirectUri: `${ environment.keycloak.ios.redirectUri }`, // needs to be a working universal link / url schema (setup in xcode)
-      clientId: `${ environment.keycloak.ios.clientId }`,
+      issuer: `${ environment.keycloak.mobile.issuer }/realms/toks`,
+      redirectUri: `${ environment.keycloak.mobile.redirectUri }`, // needs to be a working universal link / url schema (setup in xcode)
+      clientId: `${ environment.keycloak.mobile.clientId }`,
       responseType: 'code',
       scope: 'openid profile email offline_access',
       // Revocation Endpoint must be set manually when using Keycloak
       // See: https://github.com/manfredsteyer/angular-oauth2-oidc/issues/794
-      revocationEndpoint: `${ environment.keycloak.web.revocationEndpoint }/realms/master/protocol/openid-connect/revoke`,
+      revocationEndpoint: `${ environment.keycloak.mobile.revocationEndpoint }/realms/master/protocol/openid-connect/revoke`,
       showDebugInformation: true,
-      requireHttps: false
+      requireHttps: false,
     };
 
     this.oauthService.configure(authConfig);

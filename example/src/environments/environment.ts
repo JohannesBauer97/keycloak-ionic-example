@@ -11,7 +11,7 @@ export const environment = {
       clientId: 'toks-web',
       revocationEndpoint: 'http://localhost:8080'
     },
-    ios: {
+    mobile: {
       issuer: 'http://192.168.1.21:8080',
       redirectUri: 'myschema://login',
       clientId: 'toks-web',
