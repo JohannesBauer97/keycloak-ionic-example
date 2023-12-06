@@ -65,7 +65,7 @@ export class AppComponent implements OnInit {
          */
         this.oauthService.tryLogin().then(tryLoginResult => {
           console.log("tryLogin", tryLoginResult);
-          if (this.hasValidAccessToken){
+          if (this.hasValidAccessToken) {
             this.loadUserProfile();
             this.realmRoles = this.getRealmRoles();
           }
